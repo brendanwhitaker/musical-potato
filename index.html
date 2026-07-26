@@ -3,16 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Civics & Elections: Signal Pool</title>
+  <title>Civics & Elections: Signal Pool — Proposal & Neural Map</title>
   <style>
     :root {
-      --bg-dark: #090d12;
-      --bg-card: #121820;
+      --bg-dark: #05080e;
+      --bg-card: rgba(18, 24, 32, 0.85);
       --accent-teal: #00f2fe;
       --accent-cyan: #4facfe;
+      --accent-magenta: #ff007f;
       --text-main: #f0f4f8;
       --text-muted: #8a99ad;
-      --border-line: rgba(255, 255, 255, 0.08);
+      --border-line: rgba(0, 242, 254, 0.25);
       --radius: 16px;
     }
 
@@ -22,101 +23,204 @@
       color: var(--text-main);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
+    /* Hero Section with Interactive Graph Background */
     .hero {
-      padding: 80px 24px 60px;
-      background: radial-gradient(circle at 50% 0%, #1a2636 0%, var(--bg-dark) 70%);
-      text-align: center;
+      position: relative;
+      height: 75vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
       border-bottom: 1px solid var(--border-line);
     }
-    .hero-container { max-width: 800px; margin: 0 auto; }
+
+    #graph-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      cursor: grab;
+    }
+    #graph-canvas:active { cursor: grabbing; }
+
+    /* Hero Content Overlay */
+    .hero-content {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      max-width: 800px;
+      padding: 0 24px;
+      pointer-events: none;
+    }
+    .hero-content * { pointer-events: auto; }
+
     .badge {
       display: inline-block;
       padding: 6px 14px;
-      background: rgba(0, 242, 254, 0.1);
+      background: rgba(0, 242, 254, 0.15);
       color: var(--accent-teal);
-      border: 1px solid rgba(0, 242, 254, 0.3);
+      border: 1px solid var(--border-line);
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 20px;
+      letter-spacing: 0.12em;
+      margin-bottom: 16px;
+      backdrop-filter: blur(8px);
     }
+
     .hero h1 {
-      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
       font-weight: 800;
-      line-height: 1.1;
+      line-height: 1.15;
       margin-bottom: 16px;
       background: linear-gradient(135deg, #ffffff 0%, #aeb9bf 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .hero-lead { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 28px; }
 
-    .hero-actions { display: flex; justify-content: center; gap: 16px; }
+    .hero-lead {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    }
+
+    /* CTA Button Bar */
+    .hero-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
     .btn {
       padding: 12px 28px;
       border-radius: 30px;
-      font-weight: 600;
+      font-weight: 700;
       text-decoration: none;
-      transition: transform 0.2s ease;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
-    .btn-primary { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-teal)); color: #000; }
-    .btn-secondary { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-line); }
-    .btn:hover { transform: translateY(-2px); }
+    .btn-vote {
+      background: linear-gradient(135deg, var(--accent-magenta), var(--accent-teal));
+      color: #fff;
+      box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
+    }
+    .btn-vote:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 242, 254, 0.6);
+    }
+    .btn-secondary {
+      background: rgba(18, 24, 32, 0.8);
+      color: var(--text-main);
+      border: 1px solid var(--border-line);
+      backdrop-filter: blur(8px);
+    }
+    .btn-secondary:hover { transform: translateY(-2px); border-color: var(--accent-teal); }
 
-    main { max-width: 900px; margin: 40px auto; padding: 0 24px 80px; }
-    
+    /* Interactive Inspector Panel */
+    .inspector-panel {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      width: 340px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-line);
+      border-radius: var(--radius);
+      padding: 20px;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .inspector-panel.active { display: flex; }
+    .panel-tag { font-size: 0.7rem; text-transform: uppercase; color: var(--accent-teal); font-weight: 700; }
+    .panel-title { font-size: 1.1rem; font-weight: 700; color: #fff; }
+    .panel-desc { font-size: 0.88rem; color: var(--text-muted); }
+    .close-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+
+    /* Main Narrative Section */
+    main { max-width: 960px; margin: 40px auto; padding: 0 24px 80px; }
+
     section {
       background: var(--bg-card);
       border: 1px solid var(--border-line);
       border-radius: var(--radius);
-      padding: 32px;
+      padding: 36px;
       margin-bottom: 32px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
     section h2 {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       color: var(--accent-teal);
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       border-bottom: 1px solid var(--border-line);
       padding-bottom: 10px;
     }
-    p { margin-bottom: 16px; color: #dbe4e6; }
-    
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 20px; }
+    p { margin-bottom: 16px; color: #dbe4e6; font-size: 1.05rem; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 24px; }
     .card {
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-line);
-      border-radius: 8px;
-      padding: 20px;
+      border-radius: 12px;
+      padding: 24px;
     }
-    .card h3 { color: #fff; font-size: 1.1rem; margin-bottom: 8px; }
+    .card h3 { color: #fff; font-size: 1.15rem; margin-bottom: 10px; }
     .card p { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 0; }
+
+    /* Proposal & Voting Highlight Box */
+    .vote-box {
+      background: linear-gradient(135deg, rgba(255, 0, 127, 0.1), rgba(0, 242, 254, 0.1));
+      border: 1px solid var(--accent-teal);
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .vote-box h2 { border: none; padding: 0; color: #fff; font-size: 2rem; }
   </style>
 </head>
 <body>
 
+  <!-- Hero with Interactive 3D Canvas -->
   <header class="hero">
-    <div class="hero-container">
-      <div class="badge">Frame Creation Synthesis</div>
+    <canvas id="graph-canvas"></canvas>
+
+    <div class="hero-content">
+      <div class="badge">Frame Creation Proposal</div>
       <h1>Civics & Elections: Signal Pool</h1>
       <p class="hero-lead">Deconstructing systemic civic paralysis, cross-agency friction, and constituent disengagement into actionable problem frames.</p>
+      
       <div class="hero-actions">
-        <a href="#analysis" class="btn btn-primary">Read Synthesis</a>
-        <a href="./slides.html" class="btn btn-secondary">Launch Presentation Deck ↗</a>
+        <a href="#vote" class="btn btn-vote">⚡ Vote For This Proposal</a>
+        <a href="#situation" class="btn btn-secondary">Read Problem Analysis</a>
+        <a href="./slides.html" class="btn btn-secondary">Launch Slide Deck ↗</a>
       </div>
+    </div>
+
+    <!-- Interactive Node Drawer -->
+    <div class="inspector-panel" id="inspector">
+      <button class="close-btn" onclick="closeInspector()">×</button>
+      <div class="panel-tag" id="node-type">Theme</div>
+      <div class="panel-title" id="node-title">Node Title</div>
+      <div class="panel-desc" id="node-desc">Click any node in the graph background to inspect its details.</div>
     </div>
   </header>
 
-  <main id="analysis">
-    <section>
-      <h2>The Situation</h2>
+  <main>
+    <!-- Section 1: The Problem Situation -->
+    <section id="situation">
+      <h2>The Problem Situation</h2>
       <p>Local communities are experiencing a deep paralysis in civic problem-solving. Citizens submit heartfelt inquiries and local commissioners dedicate hundreds of volunteer hours, yet systemic problems—from cross-jurisdictional transit conflicts to constituent response backlogs—take years to address.</p>
       <p>The barrier isn't a lack of tools or public willingness; it's an institutional incentive structure where agencies claim jurisdiction when there's credit to take, but deflect responsibility when hard trade-offs emerge.</p>
     </section>
 
+    <!-- Section 2: The Core Paradox -->
     <section>
       <h2>The Paradox of Fragmented Accountability</h2>
       <p>Constituents expect hyper-local accountability and direct dialogue, but public officials operate within rigid, risk-averse bureaucracy. The harder citizens push through official channels, the more automated boilerplate they receive in response—creating a self-reinforcing cycle of cynicism.</p>
@@ -133,6 +237,7 @@
       </div>
     </section>
 
+    <!-- Section 3: Key Themes -->
     <section>
       <h2>Synthesized Themes</h2>
       <div class="grid">
@@ -150,7 +255,117 @@
         </div>
       </div>
     </section>
+
+    <!-- Section 4: Call-to-Action / Vote Invitation -->
+    <section id="vote" class="vote-box">
+      <h2>Back This Frame Creation Proposal</h2>
+      <p>Help us move this from synthesis into active execution. Vote for this proposal to help build shared-incentive problem sprints across agency boundaries.</p>
+      <div style="margin-top: 24px;">
+        <a href="#vote" onclick="alert('Thank you for voting for this proposal!')" class="btn btn-vote" style="font-size: 1.1rem; padding: 14px 36px;">
+          👍 Vote For Proposal
+        </a>
+      </div>
+    </section>
   </main>
 
+  <!-- Canvas Neural Map Script -->
+  <script>
+    const canvas = document.getElementById('graph-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const nodes = [
+      { id: 't1', title: 'Institutional Deflection', type: 'Theme', color: '#00f2fe', radius: 16, x: 0, y: -120, z: 0, desc: 'Friction between volunteer passion and risk-averse bureaucratic delays.' },
+      { id: 't2', title: 'Information Asymmetry', type: 'Theme', color: '#00f2fe', radius: 16, x: -180, y: 80, z: -40, desc: 'Complex local ballot choices without plain-language insights.' },
+      { id: 't3', title: 'Performative Civics', type: 'Theme', color: '#00f2fe', radius: 16, x: 180, y: 80, z: 40, desc: 'Civic tools favoring the appearance of collaboration over execution.' },
+      { id: 'p1', title: 'Cross-Agency Ducking', type: 'Pattern', color: '#4facfe', radius: 11, x: -60, y: -40, z: 20, desc: 'Agencies claiming credit but ducking shared responsibility.' },
+      { id: 'p2', title: 'Mail Black Hole', type: 'Pattern', color: '#4facfe', radius: 11, x: 60, y: -40, z: -20, desc: 'Constituent messages returning as strategist boilerplate.' }
+    ];
+
+    const links = [
+      { source: 't1', target: 'p1' },
+      { source: 't1', target: 'p2' },
+      { source: 't2', target: 'p1' },
+      { source: 't3', target: 'p2' }
+    ];
+
+    let cameraAngleX = 0, cameraAngleY = 0, zoom = 1, isDragging = false, prevX = 0, prevY = 0, selectedNode = null;
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true; prevX = e.clientX; prevY = e.clientY;
+      checkClick(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      cameraAngleY += (e.clientX - prevX) * 0.005;
+      cameraAngleX += (e.clientY - prevY) * 0.005;
+      prevX = e.clientX; prevY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => isDragging = false);
+
+    function project(x, y, z) {
+      let cosY = Math.cos(cameraAngleY), sinY = Math.sin(cameraAngleY);
+      let x1 = x * cosY - z * sinY, z1 = z * cosY + x * sinY;
+      let cosX = Math.cos(cameraAngleX), sinX = Math.sin(cameraAngleX);
+      let y2 = y * cosX - z1 * sinX, z2 = z1 * cosX + y * sinX;
+      let perspective = 500 / (500 + z2);
+      return { x: canvas.width / 2 + x1 * perspective * zoom, y: canvas.height / 2 + y2 * perspective * zoom, scale: perspective * zoom };
+    }
+
+    function checkClick(mx, my) {
+      const rect = canvas.getBoundingClientRect();
+      const x = mx - rect.left, y = my - rect.top;
+      nodes.forEach(node => {
+        const p = project(node.x, node.y, node.z);
+        if (Math.hypot(x - p.x, y - p.y) < node.radius * p.scale * 1.5) {
+          selectedNode = node;
+          document.getElementById('node-type').innerText = node.type;
+          document.getElementById('node-title').innerText = node.title;
+          document.getElementById('node-desc').innerText = node.desc;
+          document.getElementById('inspector').classList.add('active');
+        }
+      });
+    }
+
+    function closeInspector() {
+      document.getElementById('inspector').classList.remove('active');
+      selectedNode = null;
+    }
+
+    let pulse = 0;
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      pulse += 0.03;
+
+      links.forEach(l => {
+        const s = nodes.find(n => n.id === l.source), t = nodes.find(n => n.id === l.target);
+        if (!s || !t) return;
+        const p1 = project(s.x, s.y, s.z), p2 = project(t.x, t.y, t.z);
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+        ctx.strokeStyle = 'rgba(0,242,254,0.15)'; ctx.lineWidth = 1.5; ctx.stroke();
+      });
+
+      nodes.forEach(node => {
+        const p = project(node.x, node.y, node.z);
+        ctx.beginPath(); ctx.arc(p.x, p.y, (node.radius + 4) * p.scale, 0, Math.PI * 2);
+        ctx.fillStyle = node.color; ctx.shadowBlur = 15; ctx.shadowColor = node.color; ctx.globalAlpha = 0.3; ctx.fill(); ctx.globalAlpha = 1.0;
+        ctx.beginPath(); ctx.arc(p.x, p.y, node.radius * p.scale, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff'; ctx.fill(); ctx.shadowBlur = 0;
+        ctx.font = `${Math.max(10, 11 * p.scale)}px sans-serif`; ctx.fillStyle = '#8a99ad';
+        ctx.fillText(node.title, p.x + (node.radius + 6) * p.scale, p.y + 4);
+      });
+
+      requestAnimationFrame(render);
+    }
+    render();
+  </script>
 </body>
 </html>
