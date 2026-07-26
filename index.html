@@ -1,14 +1,156 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Civics &amp; Elections: Signal Pool</title>
-<link rel="stylesheet" href="./assets/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Civics & Elections: Signal Pool</title>
+  <style>
+    :root {
+      --bg-dark: #090d12;
+      --bg-card: #121820;
+      --accent-teal: #00f2fe;
+      --accent-cyan: #4facfe;
+      --text-main: #f0f4f8;
+      --text-muted: #8a99ad;
+      --border-line: rgba(255, 255, 255, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    .hero {
+      padding: 80px 24px 60px;
+      background: radial-gradient(circle at 50% 0%, #1a2636 0%, var(--bg-dark) 70%);
+      text-align: center;
+      border-bottom: 1px solid var(--border-line);
+    }
+    .hero-container { max-width: 800px; margin: 0 auto; }
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(0, 242, 254, 0.1);
+      color: var(--accent-teal);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 0%, #aeb9bf 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-lead { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 28px; }
+
+    .hero-actions { display: flex; justify-content: center; gap: 16px; }
+    .btn {
+      padding: 12px 28px;
+      border-radius: 30px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-teal)); color: #000; }
+    .btn-secondary { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-line); }
+    .btn:hover { transform: translateY(-2px); }
+
+    main { max-width: 900px; margin: 40px auto; padding: 0 24px 80px; }
+    
+    section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-line);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 32px;
+    }
+    section h2 {
+      font-size: 1.5rem;
+      color: var(--accent-teal);
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-line);
+      padding-bottom: 10px;
+    }
+    p { margin-bottom: 16px; color: #dbe4e6; }
+    
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 20px; }
+    .card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-line);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .card h3 { color: #fff; font-size: 1.1rem; margin-bottom: 8px; }
+    .card p { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 0; }
+  </style>
 </head>
 <body>
-<main id="report"><p class="loading">Loading…</p></main>
-<script src="./data/site-data.js"></script>
-<script src="./assets/viewer.js"></script>
+
+  <header class="hero">
+    <div class="hero-container">
+      <div class="badge">Frame Creation Synthesis</div>
+      <h1>Civics & Elections: Signal Pool</h1>
+      <p class="hero-lead">Deconstructing systemic civic paralysis, cross-agency friction, and constituent disengagement into actionable problem frames.</p>
+      <div class="hero-actions">
+        <a href="#analysis" class="btn btn-primary">Read Synthesis</a>
+        <a href="./slides.html" class="btn btn-secondary">Launch Presentation Deck ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="analysis">
+    <section>
+      <h2>The Situation</h2>
+      <p>Local communities are experiencing a deep paralysis in civic problem-solving. Citizens submit heartfelt inquiries and local commissioners dedicate hundreds of volunteer hours, yet systemic problems—from cross-jurisdictional transit conflicts to constituent response backlogs—take years to address.</p>
+      <p>The barrier isn't a lack of tools or public willingness; it's an institutional incentive structure where agencies claim jurisdiction when there's credit to take, but deflect responsibility when hard trade-offs emerge.</p>
+    </section>
+
+    <section>
+      <h2>The Paradox of Fragmented Accountability</h2>
+      <p>Constituents expect hyper-local accountability and direct dialogue, but public officials operate within rigid, risk-averse bureaucracy. The harder citizens push through official channels, the more automated boilerplate they receive in response—creating a self-reinforcing cycle of cynicism.</p>
+      
+      <div class="grid">
+        <div class="card">
+          <h3>Grassroots Fatigue</h3>
+          <p>Sincere constituent outreach yields generic boilerplate, destroying trust in representative responsiveness.</p>
+        </div>
+        <div class="card">
+          <h3>Agency Ducking</h3>
+          <p>Multi-jurisdictional issues stall for years as entities claim credit and duck shared problem-solving.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Synthesized Themes</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>1. Institutional Deflection</h3>
+          <p>The friction between volunteer civic passion and systemic bureaucratic delays creates severe community burnout.</p>
+        </div>
+        <div class="card">
+          <h3>2. Information Asymmetry</h3>
+          <p>Voters face complex local choices without plain-language insights into candidate records or ballot responsibilities.</p>
+        </div>
+        <div class="card">
+          <h3>3. Performative Civics</h3>
+          <p>Current civic tools favor the appearance of collaboration over high-stakes, actionable problem-solving.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
 </body>
 </html>
